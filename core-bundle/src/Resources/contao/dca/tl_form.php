@@ -128,7 +128,7 @@ $GLOBALS['TL_DCA']['tl_form'] = array
 		),
 		'tstamp' => array
 		(
-			'sql'                     => "int(10) unsigned NOT NULL default '0'"
+			'sql'                     => "int(10) unsigned NOT NULL default 0"
 		),
 		'title' => array
 		(
@@ -158,7 +158,7 @@ $GLOBALS['TL_DCA']['tl_form'] = array
 			'inputType'               => 'pageTree',
 			'foreignKey'              => 'tl_page.title',
 			'eval'                    => array('fieldType'=>'radio', 'tl_class'=>'clr'),
-			'sql'                     => "int(10) unsigned NOT NULL default '0'",
+			'sql'                     => "int(10) unsigned NOT NULL default 0",
 			'relation'                => array('type'=>'hasOne', 'load'=>'lazy')
 		),
 		'sendViaEmail' => array
@@ -191,13 +191,12 @@ $GLOBALS['TL_DCA']['tl_form'] = array
 		'format' => array
 		(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_form']['format'],
-			'default'                 => 'raw',
 			'exclude'                 => true,
 			'inputType'               => 'select',
 			'options'                 => array('raw', 'xml', 'csv', 'email'),
 			'reference'               => &$GLOBALS['TL_LANG']['tl_form'],
 			'eval'                    => array('helpwizard'=>true, 'tl_class'=>'w50'),
-			'sql'                     => "varchar(12) NOT NULL default ''"
+			'sql'                     => "varchar(12) NOT NULL default 'raw'"
 		),
 		'skipEmpty' => array
 		(
@@ -239,13 +238,12 @@ $GLOBALS['TL_DCA']['tl_form'] = array
 		'method' => array
 		(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_form']['method'],
-			'default'                 => 'POST',
 			'exclude'                 => true,
 			'filter'                  => true,
 			'inputType'               => 'select',
 			'options'                 => array('POST', 'GET'),
 			'eval'                    => array('tl_class'=>'w50'),
-			'sql'                     => "varchar(12) NOT NULL default ''"
+			'sql'                     => "varchar(12) NOT NULL default 'POST'"
 		),
 		'novalidate' => array
 		(
@@ -289,7 +287,7 @@ $GLOBALS['TL_DCA']['tl_form'] = array
  *
  * @author Leo Feyer <https://github.com/leofeyer>
  */
-class tl_form extends Backend
+class tl_form extends Contao\Backend
 {
 
 	/**
@@ -298,7 +296,7 @@ class tl_form extends Backend
 	public function __construct()
 	{
 		parent::__construct();
-		$this->import('BackendUser', 'User');
+		$this->import('Contao\BackendUser', 'User');
 	}
 
 	/**
@@ -340,10 +338,10 @@ class tl_form extends Backend
 		}
 
 		/** @var Symfony\Component\HttpFoundation\Session\SessionInterface $objSession */
-		$objSession = System::getContainer()->get('session');
+		$objSession = Contao\System::getContainer()->get('session');
 
 		// Check current action
-		switch (Input::get('act'))
+		switch (Contao\Input::get('act'))
 		{
 			case 'select':
 				// Allow
@@ -360,9 +358,9 @@ class tl_form extends Backend
 			case 'copy':
 			case 'delete':
 			case 'show':
-				if (!\in_array(Input::get('id'), $root) || (Input::get('act') == 'delete' && !$this->User->hasAccess('delete', 'formp')))
+				if (!\in_array(Contao\Input::get('id'), $root) || (Contao\Input::get('act') == 'delete' && !$this->User->hasAccess('delete', 'formp')))
 				{
-					throw new Contao\CoreBundle\Exception\AccessDeniedException('Not enough permissions to ' . Input::get('act') . ' form ID ' . Input::get('id') . '.');
+					throw new Contao\CoreBundle\Exception\AccessDeniedException('Not enough permissions to ' . Contao\Input::get('act') . ' form ID ' . Contao\Input::get('id') . '.');
 				}
 				break;
 
@@ -371,7 +369,7 @@ class tl_form extends Backend
 			case 'overrideAll':
 			case 'copyAll':
 				$session = $objSession->all();
-				if (Input::get('act') == 'deleteAll' && !$this->User->hasAccess('delete', 'formp'))
+				if (Contao\Input::get('act') == 'deleteAll' && !$this->User->hasAccess('delete', 'formp'))
 				{
 					$session['CURRENT']['IDS'] = array();
 				}
@@ -383,9 +381,9 @@ class tl_form extends Backend
 				break;
 
 			default:
-				if (\strlen(Input::get('act')))
+				if (\strlen(Contao\Input::get('act')))
 				{
-					throw new Contao\CoreBundle\Exception\AccessDeniedException('Not enough permissions to ' . Input::get('act') . ' forms.');
+					throw new Contao\CoreBundle\Exception\AccessDeniedException('Not enough permissions to ' . Contao\Input::get('act') . ' forms.');
 				}
 				break;
 		}
@@ -426,7 +424,7 @@ class tl_form extends Backend
 		}
 
 		/** @var Symfony\Component\HttpFoundation\Session\Attribute\AttributeBagInterface $objSessionBag */
-		$objSessionBag = System::getContainer()->get('session')->getBag('contao_backend');
+		$objSessionBag = Contao\System::getContainer()->get('session')->getBag('contao_backend');
 
 		$arrNew = $objSessionBag->get('new_records');
 
@@ -439,11 +437,11 @@ class tl_form extends Backend
 
 				while ($objGroup->next())
 				{
-					$arrFormp = StringUtil::deserialize($objGroup->formp);
+					$arrFormp = Contao\StringUtil::deserialize($objGroup->formp);
 
 					if (\is_array($arrFormp) && \in_array('create', $arrFormp))
 					{
-						$arrForms = StringUtil::deserialize($objGroup->forms, true);
+						$arrForms = Contao\StringUtil::deserialize($objGroup->forms, true);
 						$arrForms[] = $insertId;
 
 						$this->Database->prepare("UPDATE tl_user_group SET forms=? WHERE id=?")
@@ -459,11 +457,11 @@ class tl_form extends Backend
 										   ->limit(1)
 										   ->execute($this->User->id);
 
-				$arrFormp = StringUtil::deserialize($objUser->formp);
+				$arrFormp = Contao\StringUtil::deserialize($objUser->formp);
 
 				if (\is_array($arrFormp) && \in_array('create', $arrFormp))
 				{
-					$arrForms = StringUtil::deserialize($objUser->forms, true);
+					$arrForms = Contao\StringUtil::deserialize($objUser->forms, true);
 					$arrForms[] = $insertId;
 
 					$this->Database->prepare("UPDATE tl_user SET forms=? WHERE id=?")
@@ -480,14 +478,14 @@ class tl_form extends Backend
 	/**
 	 * Auto-generate a form alias if it has not been set yet
 	 *
-	 * @param mixed         $varValue
-	 * @param DataContainer $dc
+	 * @param mixed                $varValue
+	 * @param Contao\DataContainer $dc
 	 *
 	 * @return mixed
 	 *
 	 * @throws Exception
 	 */
-	public function generateAlias($varValue, DataContainer $dc)
+	public function generateAlias($varValue, Contao\DataContainer $dc)
 	{
 		$aliasExists = function (string $alias) use ($dc): bool
 		{
@@ -497,7 +495,7 @@ class tl_form extends Backend
 		// Generate an alias if there is none
 		if ($varValue == '')
 		{
-			$varValue = System::getContainer()->get('contao.slug')->generate($dc->activeRecord->title, $dc->activeRecord->jumpTo, $aliasExists);
+			$varValue = Contao\System::getContainer()->get('contao.slug')->generate($dc->activeRecord->title, $dc->activeRecord->jumpTo, $aliasExists);
 		}
 		elseif ($aliasExists($varValue))
 		{
@@ -541,7 +539,7 @@ class tl_form extends Backend
 	 */
 	public function editHeader($row, $href, $label, $title, $icon, $attributes)
 	{
-		return $this->User->canEditFieldsOf('tl_form') ? '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.Image::getHtml($icon, $label).'</a> ' : Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
+		return $this->User->canEditFieldsOf('tl_form') ? '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.Contao\StringUtil::specialchars($title).'"'.$attributes.'>'.Contao\Image::getHtml($icon, $label).'</a> ' : Contao\Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
 	}
 
 	/**
@@ -558,7 +556,7 @@ class tl_form extends Backend
 	 */
 	public function copyForm($row, $href, $label, $title, $icon, $attributes)
 	{
-		return $this->User->hasAccess('create', 'formp') ? '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.Image::getHtml($icon, $label).'</a> ' : Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
+		return $this->User->hasAccess('create', 'formp') ? '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.Contao\StringUtil::specialchars($title).'"'.$attributes.'>'.Contao\Image::getHtml($icon, $label).'</a> ' : Contao\Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
 	}
 
 	/**
@@ -575,6 +573,6 @@ class tl_form extends Backend
 	 */
 	public function deleteForm($row, $href, $label, $title, $icon, $attributes)
 	{
-		return $this->User->hasAccess('delete', 'formp') ? '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.Image::getHtml($icon, $label).'</a> ' : Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
+		return $this->User->hasAccess('delete', 'formp') ? '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.Contao\StringUtil::specialchars($title).'"'.$attributes.'>'.Contao\Image::getHtml($icon, $label).'</a> ' : Contao\Image::getHtml(preg_replace('/\.svg$/i', '_.svg', $icon)).' ';
 	}
 }

@@ -23,6 +23,7 @@ class DataContainerCallbackListener
         'child_record_callback',
         'input_field_callback',
         'options_callback',
+        'group_callback',
     ];
 
     /**
@@ -45,7 +46,7 @@ class DataContainerCallbackListener
             $keys = explode('.', $target);
             $dcaRef = &$this->getDcaReference($table, $keys);
 
-            if (\in_array(end($keys), self::SINGLETONS, true)) {
+            if ((isset($keys[2]) && 'panel_callback' === $keys[2]) || \in_array(end($keys), self::SINGLETONS, true)) {
                 $this->updateSingleton($dcaRef, $callbacks);
             } else {
                 $this->addCallbacks($dcaRef, $callbacks);

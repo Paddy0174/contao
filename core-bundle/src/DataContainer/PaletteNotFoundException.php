@@ -10,8 +10,8 @@ declare(strict_types=1);
  * @license LGPL-3.0-or-later
  */
 
-namespace Contao\CoreBundle\Exception;
+namespace Contao\CoreBundle\DataContainer;
 
-class UserNotFoundException extends \RuntimeException
+class PaletteNotFoundException extends \InvalidArgumentException
 {
 }

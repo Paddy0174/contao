@@ -23,6 +23,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+/**
+ * @group legacy
+ */
 class RoutingTest extends ContaoTestCase
 {
     /**
@@ -43,6 +46,9 @@ class RoutingTest extends ContaoTestCase
         $GLOBALS['TL_AUTO_ITEM'] = ['items'];
     }
 
+    /**
+     * @expectedDeprecation Using Frontend::getPageIdFromUrl() has been deprecated %s.
+     */
     public function testReturnsThePageIdFromTheUrl(): void
     {
         $_SERVER['REQUEST_URI'] = 'home.html?foo=bar';
@@ -55,183 +61,7 @@ class RoutingTest extends ContaoTestCase
 
         $request
             ->method('getScriptName')
-            ->willReturn('app.php')
-        ;
-
-        $requestStack = new RequestStack();
-        $requestStack->push($request);
-
-        $container = new ContainerBuilder();
-        $container->set('request_stack', $requestStack);
-
-        System::setContainer($container);
-
-        $this->assertSame('home', Frontend::getPageIdFromUrl());
-        $this->assertEmpty($_GET);
-    }
-
-    public function testReturnsNullIfTheRequestIsEmpty(): void
-    {
-        $_SERVER['REQUEST_URI'] = '/';
-
-        $container = new ContainerBuilder();
-        $container->set('request_stack', new RequestStack());
-
-        System::setContainer($container);
-
-        $this->assertNull(Frontend::getPageIdFromUrl());
-        $this->assertEmpty($_GET);
-    }
-
-    public function testReturnsFalseIfTheRequestContainsAutoItem(): void
-    {
-        $_SERVER['REQUEST_URI'] = 'home/auto_item/foo.html';
-
-        $request = $this->createMock(Request::class);
-        $request
-            ->method('getBasePath')
-            ->willReturn('')
-        ;
-
-        $request
-            ->method('getScriptName')
-            ->willReturn('app.php')
-        ;
-
-        $requestStack = new RequestStack();
-        $requestStack->push($request);
-
-        $container = new ContainerBuilder();
-        $container->set('request_stack', $requestStack);
-
-        System::setContainer($container);
-
-        $this->assertFalse(Frontend::getPageIdFromUrl());
-        $this->assertEmpty($_GET);
-    }
-
-    public function testReturnsFalseIfTheUrlSuffixDoesNotMatch(): void
-    {
-        $_SERVER['REQUEST_URI'] = 'home/auto_item/foo.xml';
-
-        $request = $this->createMock(Request::class);
-        $request
-            ->method('getBasePath')
-            ->willReturn('')
-        ;
-
-        $request
-            ->method('getScriptName')
-            ->willReturn('app.php')
-        ;
-
-        $requestStack = new RequestStack();
-        $requestStack->push($request);
-
-        $container = new ContainerBuilder();
-        $container->set('request_stack', $requestStack);
-
-        System::setContainer($container);
-
-        $this->assertFalse(Frontend::getPageIdFromUrl());
-        $this->assertEmpty($_GET);
-    }
-
-    public function testReturnsFalseUponDuplicateParameters(): void
-    {
-        $_SERVER['REQUEST_URI'] = 'home/foo/bar1/foo/bar2.html';
-
-        $request = $this->createMock(Request::class);
-        $request
-            ->method('getBasePath')
-            ->willReturn('')
-        ;
-
-        $request
-            ->method('getScriptName')
-            ->willReturn('app.php')
-        ;
-
-        $requestStack = new RequestStack();
-        $requestStack->push($request);
-
-        $container = new ContainerBuilder();
-        $container->set('request_stack', $requestStack);
-
-        System::setContainer($container);
-
-        $this->assertFalse(Frontend::getPageIdFromUrl());
-        $this->assertSame(['foo' => 'bar1'], $_GET);
-    }
-
-    public function testReturnsFalseIfTheRequestContainsAnAutoItemKeyword(): void
-    {
-        $_SERVER['REQUEST_URI'] = 'home/items/bar.html';
-
-        $request = $this->createMock(Request::class);
-        $request
-            ->method('getBasePath')
-            ->willReturn('')
-        ;
-
-        $request
-            ->method('getScriptName')
-            ->willReturn('app.php')
-        ;
-
-        $requestStack = new RequestStack();
-        $requestStack->push($request);
-
-        $container = new ContainerBuilder();
-        $container->set('request_stack', $requestStack);
-
-        System::setContainer($container);
-        Config::set('useAutoItem', true);
-
-        $this->assertFalse(Frontend::getPageIdFromUrl());
-        $this->assertEmpty($_GET);
-    }
-
-    public function testDecodesTheRequestString(): void
-    {
-        $_SERVER['REQUEST_URI'] = 'h%C3%B6me.html';
-
-        $request = $this->createMock(Request::class);
-        $request
-            ->method('getBasePath')
-            ->willReturn('')
-        ;
-
-        $request
-            ->method('getScriptName')
-            ->willReturn('app.php')
-        ;
-
-        $requestStack = new RequestStack();
-        $requestStack->push($request);
-
-        $container = new ContainerBuilder();
-        $container->set('request_stack', $requestStack);
-
-        System::setContainer($container);
-
-        $this->assertSame('höme', Frontend::getPageIdFromUrl());
-        $this->assertEmpty($_GET);
-    }
-
-    public function testUnsetsEmptyFragments(): void
-    {
-        $_SERVER['REQUEST_URI'] = 'home//foo.html';
-
-        $request = $this->createMock(Request::class);
-        $request
-            ->method('getBasePath')
-            ->willReturn('')
-        ;
-
-        $request
-            ->method('getScriptName')
-            ->willReturn('app.php')
+            ->willReturn('index.php')
         ;
 
         $requestStack = new RequestStack();
@@ -247,10 +77,209 @@ class RoutingTest extends ContaoTestCase
     }
 
     /**
+     * @expectedDeprecation Using Frontend::getPageIdFromUrl() has been deprecated %s.
+     */
+    public function testReturnsNullIfTheRequestIsEmpty(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/';
+
+        $container = new ContainerBuilder();
+        $container->set('request_stack', new RequestStack());
+
+        System::setContainer($container);
+
+        $this->assertNull(Frontend::getPageIdFromUrl());
+        $this->assertEmpty($_GET);
+    }
+
+    /**
+     * @expectedDeprecation Using Frontend::getPageIdFromUrl() has been deprecated %s.
+     */
+    public function testReturnsFalseIfTheRequestContainsAutoItem(): void
+    {
+        $_SERVER['REQUEST_URI'] = 'home/auto_item/foo.html';
+
+        $request = $this->createMock(Request::class);
+        $request
+            ->method('getBasePath')
+            ->willReturn('')
+        ;
+
+        $request
+            ->method('getScriptName')
+            ->willReturn('index.php')
+        ;
+
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+
+        $container = new ContainerBuilder();
+        $container->set('request_stack', $requestStack);
+
+        System::setContainer($container);
+
+        $this->assertFalse(Frontend::getPageIdFromUrl());
+        $this->assertEmpty($_GET);
+    }
+
+    /**
+     * @expectedDeprecation Using Frontend::getPageIdFromUrl() has been deprecated %s.
+     */
+    public function testReturnsFalseIfTheUrlSuffixDoesNotMatch(): void
+    {
+        $_SERVER['REQUEST_URI'] = 'home/auto_item/foo.xml';
+
+        $request = $this->createMock(Request::class);
+        $request
+            ->method('getBasePath')
+            ->willReturn('')
+        ;
+
+        $request
+            ->method('getScriptName')
+            ->willReturn('index.php')
+        ;
+
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+
+        $container = new ContainerBuilder();
+        $container->set('request_stack', $requestStack);
+
+        System::setContainer($container);
+
+        $this->assertFalse(Frontend::getPageIdFromUrl());
+        $this->assertEmpty($_GET);
+    }
+
+    /**
+     * @expectedDeprecation Using Frontend::getPageIdFromUrl() has been deprecated %s.
+     */
+    public function testReturnsFalseUponDuplicateParameters(): void
+    {
+        $_SERVER['REQUEST_URI'] = 'home/foo/bar1/foo/bar2.html';
+
+        $request = $this->createMock(Request::class);
+        $request
+            ->method('getBasePath')
+            ->willReturn('')
+        ;
+
+        $request
+            ->method('getScriptName')
+            ->willReturn('index.php')
+        ;
+
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+
+        $container = new ContainerBuilder();
+        $container->set('request_stack', $requestStack);
+
+        System::setContainer($container);
+
+        $this->assertFalse(Frontend::getPageIdFromUrl());
+        $this->assertSame(['foo' => 'bar1'], $_GET);
+    }
+
+    /**
+     * @expectedDeprecation Using Frontend::getPageIdFromUrl() has been deprecated %s.
+     */
+    public function testReturnsFalseIfTheRequestContainsAnAutoItemKeyword(): void
+    {
+        $_SERVER['REQUEST_URI'] = 'home/items/bar.html';
+
+        $request = $this->createMock(Request::class);
+        $request
+            ->method('getBasePath')
+            ->willReturn('')
+        ;
+
+        $request
+            ->method('getScriptName')
+            ->willReturn('index.php')
+        ;
+
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+
+        $container = new ContainerBuilder();
+        $container->set('request_stack', $requestStack);
+
+        System::setContainer($container);
+        Config::set('useAutoItem', true);
+
+        $this->assertFalse(Frontend::getPageIdFromUrl());
+        $this->assertEmpty($_GET);
+    }
+
+    /**
+     * @expectedDeprecation Using Frontend::getPageIdFromUrl() has been deprecated %s.
+     */
+    public function testReturnsFalseIfAFragmentKeyIsEmpty(): void
+    {
+        $_SERVER['REQUEST_URI'] = 'home//foo.html';
+
+        $request = $this->createMock(Request::class);
+        $request
+            ->method('getBasePath')
+            ->willReturn('')
+        ;
+
+        $request
+            ->method('getScriptName')
+            ->willReturn('index.php')
+        ;
+
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+
+        $container = new ContainerBuilder();
+        $container->set('request_stack', $requestStack);
+
+        System::setContainer($container);
+
+        $this->assertFalse(Frontend::getPageIdFromUrl());
+        $this->assertEmpty($_GET);
+    }
+
+    /**
+     * @expectedDeprecation Using Frontend::getPageIdFromUrl() has been deprecated %s.
+     */
+    public function testDecodesTheRequestString(): void
+    {
+        $_SERVER['REQUEST_URI'] = 'h%C3%B6me.html';
+
+        $request = $this->createMock(Request::class);
+        $request
+            ->method('getBasePath')
+            ->willReturn('')
+        ;
+
+        $request
+            ->method('getScriptName')
+            ->willReturn('index.php')
+        ;
+
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+
+        $container = new ContainerBuilder();
+        $container->set('request_stack', $requestStack);
+
+        System::setContainer($container);
+
+        $this->assertSame('höme', Frontend::getPageIdFromUrl());
+        $this->assertEmpty($_GET);
+    }
+
+    /**
      * Needs to run in a separate process because it includes the functions.php file.
      *
      * @runInSeparateProcess
      * @preserveGlobalState disabled
+     *
+     * @expectedDeprecation Using Frontend::getPageIdFromUrl() has been deprecated %s.
      */
     public function testAddsTheAutoItemFragment(): void
     {
@@ -266,7 +295,7 @@ class RoutingTest extends ContaoTestCase
 
         $request
             ->method('getScriptName')
-            ->willReturn('app.php')
+            ->willReturn('index.php')
         ;
 
         $requestStack = new RequestStack();
@@ -282,6 +311,9 @@ class RoutingTest extends ContaoTestCase
         $this->assertSame(['auto_item' => 'foo'], $_GET);
     }
 
+    /**
+     * @expectedDeprecation Using Frontend::getPageIdFromUrl() has been deprecated %s.
+     */
     public function testReturnsNullIfOnlyTheLanguageIsGiven(): void
     {
         $_SERVER['REQUEST_URI'] = 'en/';
@@ -294,7 +326,7 @@ class RoutingTest extends ContaoTestCase
 
         $request
             ->method('getScriptName')
-            ->willReturn('app.php')
+            ->willReturn('index.php')
         ;
 
         $requestStack = new RequestStack();
@@ -310,6 +342,9 @@ class RoutingTest extends ContaoTestCase
         $this->assertSame(['language' => 'en'], $_GET);
     }
 
+    /**
+     * @expectedDeprecation Using Frontend::getPageIdFromUrl() has been deprecated %s.
+     */
     public function testReturnsFalseIfTheLanguageIsNotProvided(): void
     {
         $_SERVER['REQUEST_URI'] = 'home.html';
@@ -322,7 +357,7 @@ class RoutingTest extends ContaoTestCase
 
         $request
             ->method('getScriptName')
-            ->willReturn('app.php')
+            ->willReturn('index.php')
         ;
 
         $requestStack = new RequestStack();
@@ -338,6 +373,9 @@ class RoutingTest extends ContaoTestCase
         $this->assertEmpty($_GET);
     }
 
+    /**
+     * @expectedDeprecation Using Frontend::getPageIdFromUrl() has been deprecated %s.
+     */
     public function testReturnsFalseIfTheAliasIsEmpty(): void
     {
         $_SERVER['REQUEST_URI'] = 'en//foo/bar.html';
@@ -350,7 +388,7 @@ class RoutingTest extends ContaoTestCase
 
         $request
             ->method('getScriptName')
-            ->willReturn('app.php')
+            ->willReturn('index.php')
         ;
 
         $requestStack = new RequestStack();
@@ -367,6 +405,9 @@ class RoutingTest extends ContaoTestCase
         $this->assertSame(['language' => 'en'], $_GET);
     }
 
+    /**
+     * @expectedDeprecation Using Frontend::getPageIdFromUrl() has been deprecated %s.
+     */
     public function testReturnsFalseIfThereAreNoFragments(): void
     {
         $_SERVER['REQUEST_URI'] = '/.html';
@@ -379,7 +420,7 @@ class RoutingTest extends ContaoTestCase
 
         $request
             ->method('getScriptName')
-            ->willReturn('app.php')
+            ->willReturn('index.php')
         ;
 
         $requestStack = new RequestStack();
@@ -400,6 +441,9 @@ class RoutingTest extends ContaoTestCase
         $this->assertEmpty($_GET);
     }
 
+    /**
+     * @expectedDeprecation Using Frontend::getPageIdFromUrl() has been deprecated %s.
+     */
     public function testHandlesFolderUrlsWithoutLanguage(): void
     {
         $_SERVER['REQUEST_URI'] = 'foo/bar/home.html';
@@ -413,7 +457,7 @@ class RoutingTest extends ContaoTestCase
 
         $request
             ->method('getScriptName')
-            ->willReturn('app.php')
+            ->willReturn('index.php')
         ;
 
         $requestStack = new RequestStack();
@@ -458,6 +502,9 @@ class RoutingTest extends ContaoTestCase
         $this->assertEmpty($_GET);
     }
 
+    /**
+     * @expectedDeprecation Using Frontend::getPageIdFromUrl() has been deprecated %s.
+     */
     public function testHandlesFolderUrlsWithLanguage(): void
     {
         $_SERVER['REQUEST_URI'] = 'en/foo/bar/home/news/test.html';
@@ -471,7 +518,7 @@ class RoutingTest extends ContaoTestCase
 
         $request
             ->method('getScriptName')
-            ->willReturn('app.php')
+            ->willReturn('index.php')
         ;
 
         $requestStack = new RequestStack();
@@ -526,6 +573,9 @@ class RoutingTest extends ContaoTestCase
         $this->assertSame(['language' => 'en', 'news' => 'test'], $_GET);
     }
 
+    /**
+     * @expectedDeprecation Using Frontend::getPageIdFromUrl() has been deprecated %s.
+     */
     public function testReturnsFalseIfThereAreNoAliases(): void
     {
         $_SERVER['REQUEST_URI'] = 'foo/bar/home.html';
@@ -539,7 +589,7 @@ class RoutingTest extends ContaoTestCase
 
         $request
             ->method('getScriptName')
-            ->willReturn('app.php')
+            ->willReturn('index.php')
         ;
 
         $requestStack = new RequestStack();

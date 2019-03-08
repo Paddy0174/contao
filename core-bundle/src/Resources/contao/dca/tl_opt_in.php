@@ -75,7 +75,7 @@ $GLOBALS['TL_DCA']['tl_opt_in'] = array
 		),
 		'tstamp' => array
 		(
-			'sql'                     => "int(10) unsigned NOT NULL default '0'"
+			'sql'                     => "int(10) unsigned NOT NULL default 0"
 		),
 		'token' => array
 		(
@@ -90,7 +90,7 @@ $GLOBALS['TL_DCA']['tl_opt_in'] = array
 			'sorting'                 => true,
 			'flag'                    => 6,
 			'eval'                    => array('rgxp'=>'datim'),
-			'sql'                     => "int(10) unsigned NOT NULL default '0'"
+			'sql'                     => "int(10) unsigned NOT NULL default 0"
 		),
 		'confirmedOn' => array
 		(
@@ -99,7 +99,7 @@ $GLOBALS['TL_DCA']['tl_opt_in'] = array
 			'sorting'                 => true,
 			'flag'                    => 6,
 			'eval'                    => array('rgxp'=>'datim'),
-			'sql'                     => "int(10) unsigned NOT NULL default '0'"
+			'sql'                     => "int(10) unsigned NOT NULL default 0"
 		),
 		'removeOn' => array
 		(
@@ -108,7 +108,7 @@ $GLOBALS['TL_DCA']['tl_opt_in'] = array
 			'sorting'                 => true,
 			'flag'                    => 6,
 			'eval'                    => array('rgxp'=>'datim'),
-			'sql'                     => "int(10) unsigned NOT NULL default '0'"
+			'sql'                     => "int(10) unsigned NOT NULL default 0"
 		),
 		'email' => array
 		(
@@ -138,7 +138,7 @@ $GLOBALS['TL_DCA']['tl_opt_in'] = array
  *
  * @author Leo Feyer <https://github.com/leofeyer>
  */
-class tl_opt_in extends Backend
+class tl_opt_in extends Contao\Backend
 {
 
 	/**
@@ -149,8 +149,8 @@ class tl_opt_in extends Backend
 	 */
 	public function showRelatedRecords($data, $row)
 	{
-		System::loadLanguageFile('tl_opt_in_related');
-		Controller::loadDataContainer('tl_opt_in_related');
+		Contao\System::loadLanguageFile('tl_opt_in_related');
+		Contao\Controller::loadDataContainer('tl_opt_in_related');
 
 		$objRelated = $this->Database->prepare("SELECT * FROM tl_opt_in_related WHERE pid=?")
 									 ->execute($row['id']);
@@ -176,15 +176,15 @@ class tl_opt_in extends Backend
 	/**
 	 * Resend the double opt-in token
 	 *
-	 * @param DataContainer $dc
+	 * @param Contao\DataContainer $dc
 	 */
-	public function resendToken(DataContainer $dc)
+	public function resendToken(Contao\DataContainer $dc)
 	{
-		$model = OptInModel::findByPk($dc->id);
+		$model = Contao\OptInModel::findByPk($dc->id);
 
-		System::getContainer()->get('contao.opt-in')->find($model->token)->send();
-		Message::addConfirmation(sprintf($GLOBALS['TL_LANG']['MSC']['resendToken'], $model->email));
-		Controller::redirect($this->getReferer());
+		Contao\System::getContainer()->get('contao.opt-in')->find($model->token)->send();
+		Contao\Message::addConfirmation(sprintf($GLOBALS['TL_LANG']['MSC']['resendToken'], $model->email));
+		Contao\Controller::redirect($this->getReferer());
 	}
 
 	/**
@@ -201,6 +201,6 @@ class tl_opt_in extends Backend
 	 */
 	public function resendButton($row, $href, $label, $title, $icon, $attributes)
 	{
-		return (!$row['confirmedOn'] && $row['createdOn'] > strtotime('-24 hours')) ? '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.StringUtil::specialchars($title).'"'.$attributes.'>'.Image::getHtml($icon, $label).'</a> ' : '';
+		return (!$row['confirmedOn'] && $row['createdOn'] > strtotime('-24 hours')) ? '<a href="'.$this->addToUrl($href.'&amp;id='.$row['id']).'" title="'.Contao\StringUtil::specialchars($title).'"'.$attributes.'>'.Contao\Image::getHtml($icon, $label).'</a> ' : '';
 	}
 }

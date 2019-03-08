@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Contao\CoreBundle\OptIn;
 
-use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
+use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Email;
 use Contao\OptInModel;
 
@@ -24,11 +24,11 @@ class OptInToken implements OptInTokenInterface
     private $model;
 
     /**
-     * @var ContaoFrameworkInterface
+     * @var ContaoFramework
      */
     private $framework;
 
-    public function __construct(OptInModel $model, ContaoFrameworkInterface $framework)
+    public function __construct(OptInModel $model, ContaoFramework $framework)
     {
         $this->model = $model;
         $this->framework = $framework;
@@ -64,11 +64,11 @@ class OptInToken implements OptInTokenInterface
     public function confirm(): void
     {
         if ($this->isConfirmed()) {
-            throw new \LogicException('The token has already been confirmed');
+            throw new OptInTokenAlreadyConfirmedException();
         }
 
         if (!$this->isValid()) {
-            throw new \LogicException('The token is no longer valid');
+            throw new OptInTokenNoLongerValidException();
         }
 
         $this->model->tstamp = time();
@@ -87,15 +87,17 @@ class OptInToken implements OptInTokenInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @throws \LogicException
      */
     public function send(string $subject = null, string $text = null): void
     {
         if ($this->isConfirmed()) {
-            throw new \LogicException('The token has already been confirmed');
+            throw new OptInTokenAlreadyConfirmedException();
         }
 
         if (!$this->isValid()) {
-            throw new \LogicException('The token is no longer valid');
+            throw new OptInTokenNoLongerValidException();
         }
 
         if (!$this->hasBeenSent()) {
